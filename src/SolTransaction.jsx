@@ -1,5 +1,10 @@
 import { LAMPORTS_PER_SOL, Transaction, SystemProgram, PublicKey } from "@solana/web3.js";
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { Buffer } from 'buffer';
+
+if (typeof window !== 'undefined') {
+    window.Buffer = Buffer; // Ensure Buffer is available in the browser
+}
 
 export function SolTransaction(){
     const wallet=useWallet();
@@ -11,21 +16,21 @@ export function SolTransaction(){
             let amount=document.getElementById("amount").value;
             const transacte=new Transaction().add(
             SystemProgram.transfer({
-                fromPubKey: wallet.publicKey,
-                toPubKey: new PublicKey(to),
+                fromPubkey: wallet.publicKey,
+                toPubkey: new PublicKey(to),
                 lamports: amount * LAMPORTS_PER_SOL,
             }))
             const sign= await wallet.sendTransaction(transacte, connection);
             await connection.confirmTransaction(sign);
             alert(`Sent ${amount}sol to ${to}`);
         }catch(err){
-            console.error("Transaction failed");
+            console.error("Transaction failed", err);
         }
     }
 
     return (<div>
         <input type="text" placeholder="To" id="to"/>
-        <input type="text" placeholder="Amount" id="amount"/>
+        <input type="text" placeholder="Enter Amount" id="amount"/>
         <button onClick={()=>doTransaction()}>Send</button>
     </div>)
 }
